@@ -24,7 +24,7 @@ jobs:
           pip install pytest build twine
 
       - name: Run tests
-      - run: pytest
+        run: pytest
       
       - name: Build package
         run: python -m build
@@ -33,4 +33,4 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.ITCH_PYPI_API_TOKEN }}
-        run: twine upload dist/*
+        run: twine upload --non-interactive dist/*
