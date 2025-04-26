@@ -1,0 +1,5 @@
+*.ipynb
+*.gz
+*.pdf
+*cache
+__pycache__

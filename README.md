@@ -1,6 +1,11 @@
 # Nasdaq TotalView-ITCH 5.0 Parser
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Choose your license -->
+[![PYPI Version](https://img.shields.io/pypi/v/itchfeed)](https://pypi.org/project/itchfeed/)
+[![PyPi status](https://img.shields.io/pypi/status/itchfeed.svg?maxAge=60)](https://pypi.python.org/pypi/itchfeed)
+[![Supported Python Versions](https://img.shields.io/pypi/pyversions/itchfeed)](https://pypi.org/project/itchfeed/)
+[![CodeFactor](https://www.codefactor.io/repository/github/bbalouki/itch/badge)](https://www.codefactor.io/repository/github/bbalouki/itch)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-grey?logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/bertin-balouki-simyeli-15b17a1a6/)
+[![PayPal Me](https://img.shields.io/badge/PayPal%20Me-blue?logo=paypal)](https://paypal.me/bertinbalouki?country.x=SN&locale.x=en_US)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Python library for parsing binary data conforming to the Nasdaq TotalView-ITCH 5.0 protocol specification. This parser converts the raw byte stream into structured Python objects, making it easier to work with Nasdaq market data.
 
@@ -22,7 +27,7 @@ The Nasdaq TotalView-ITCH 5.0 protocol is a binary protocol used by Nasdaq to di
     *   Price decoding based on defined precision.
 *   **Timestamp Handling:** Correctly reconstructs the 6-byte (48-bit) nanosecond timestamps.
 *   **Price Handling:** Decodes fixed-point price fields into floating-point numbers based on the standard 4 or 8 decimal place precision.
-*   **Pure Python:** Relies only on the Python standard library (`struct`, `dataclasses`, `typing`, `queue`). No external dependencies required.
+*   **Pure Python:** Relies only on the Python standard library . No external dependencies required.
 
 ## Installation
 
@@ -30,7 +35,7 @@ You can install this project using ``pip``
 
 1.  **Clone the repository (or download the source code):**
     ```bash
-    pip install itch
+    pip install itchfeed
     ```
 2.  **Import the necessary modules** directly into your Python project:
     ```python
