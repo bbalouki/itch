@@ -1,6 +1,6 @@
 import struct
 from dataclasses import make_dataclass
-from typing import List, Tuple
+from typing import Dict, List, Tuple, Type
 
 MESSAGES = b"SAFECXDUBHRYPQINLVWKJhO"
 
@@ -1573,7 +1573,7 @@ class DLCRMessage(MarketMessage):
         return message
 
 
-messages = {
+messages: Dict[bytes, Type[MarketMessage]] = {
     b"S": SystemEventMessage,
     b"R": StockDirectoryMessage,
     b"H": StockTradingActionMessage,
