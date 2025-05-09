@@ -2,6 +2,7 @@
 [![PYPI Version](https://img.shields.io/pypi/v/itchfeed)](https://pypi.org/project/itchfeed/)
 [![PyPi status](https://img.shields.io/pypi/status/itchfeed.svg?maxAge=60)](https://pypi.python.org/pypi/itchfeed)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/itchfeed)](https://pypi.org/project/itchfeed/)
+[![PyPI Downloads](https://static.pepy.tech/badge/itchfeed)](https://pepy.tech/projects/itchfeed)
 [![CodeFactor](https://www.codefactor.io/repository/github/bbalouki/itch/badge)](https://www.codefactor.io/repository/github/bbalouki/itch)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-grey?logo=Linkedin&logoColor=white)](https://www.linkedin.com/in/bertin-balouki-simyeli-15b17a1a6/)
 [![PayPal Me](https://img.shields.io/badge/PayPal%20Me-blue?logo=paypal)](https://paypal.me/bertinbalouki?country.x=SN&locale.x=en_US)
@@ -50,7 +51,7 @@ You can install this project using ``pip``
 This is useful for processing historical ITCH data stored in files. The `MessageParser` handles buffering efficiently.
 
 ```python
-from itch import MessageParser
+from itch.parser import MessageParser
 from itch.messages import AddOrderMessage, TradeMessage
 
 # Initialize the parser. Optionally filter messages by type.
@@ -99,7 +100,7 @@ except Exception as e:
 This is suitable for real-time processing, such as reading from a network stream.
 
 ```python
-from itch import MessageParser
+from itch.parser import MessageParser
 from itch.messages import AddOrderMessage
 from queue import Queue
 

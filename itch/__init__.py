@@ -1,6 +1,5 @@
 """
 Nasdaq TotalView-ITCH 5.0 Parser
-================================
 """
 
 __author__ = "Bertin Balouki SIMYELI"

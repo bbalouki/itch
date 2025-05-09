@@ -12,7 +12,7 @@ with io.open(path.join(here, "README.md"), encoding="utf-8") as f:
 with io.open(path.join(here, "requirements.txt"), encoding="utf-8") as f:
     REQUIREMENTS = [line.rstrip() for line in f]
 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 DESCRIPTION = "Simple parser for ITCH messages"
 
 KEYWORDS = [
@@ -20,15 +20,17 @@ KEYWORDS = [
     "Financial",
     "Quantitative",
     "Equities",
+    "Totalview-ITCH",
+    "Totalview",
+    "Nasdaq-ITCH",
+    "Nasdaq",
+    "ITCH",
     "Data",
     "Feed",
     "ETFs",
     "Funds",
     "Trading",
     "Investing",
-    "Portfolio",
-    "Optimization",
-    "Performance",
 ]
 
 CLASSIFIERS = [
@@ -37,7 +39,7 @@ CLASSIFIERS = [
     "Intended Audience :: Financial and Insurance Industry",
     "Topic :: Office/Business :: Financial :: Investment",
     "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent"
+    "Operating System :: OS Independent",
 ]
 
 INLCUDE = ["itch"]
