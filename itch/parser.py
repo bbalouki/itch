@@ -1,8 +1,10 @@
 from queue import Queue
 from typing import BinaryIO, List
 
-import itch.messages as msg
-from itch.messages import MarketMessage, MESSAGES
+from itch.messages import MESSAGES, MarketMessage
+from itch.messages import messages as msgs
+
+
 class MessageParser(object):
     """
     A market message parser for ITCH 5.0 data.
@@ -17,6 +19,43 @@ class MessageParser(object):
         file: BinaryIO,
         cachesize: int = 4096,
     ) -> List[MarketMessage]:
+        """
+        Reads and parses market messages from a binary file-like object.
+
+        This method processes binary data in chunks, extracts individual messages
+        according to a specific format, and returns a list of successfully decoded 
+        MarketMessage objects. Parsing stops either when the end of the file is 
+        reached or when a system message with an end-of-messages event code is encountered.
+
+        Args:
+            file (BinaryIO): 
+                A binary file-like object (opened in binary mode) from which market messages are read.
+            cachesize (int, optional): 
+                The size (in bytes) of each data chunk read from the file. Defaults to 4096 bytes.
+
+        Returns:
+            List[MarketMessage]: 
+                A list of parsed MarketMessage objects that match the allowed message types 
+                defined in self.message_type.
+
+        Raises:
+            ValueError: 
+                If a message does not start with the expected 0x00 byte, indicating 
+                an unexpected file format or possible corruption.
+
+        Message Format:
+            - Each message starts with a 0x00 byte.
+            - The following byte specifies the message length.
+            - The complete message consists of the first 2 bytes and 'message length' bytes of body.
+            - If a system message (message_type == b'S') with event_code == b'C' is encountered, 
+            parsing stops immediately.
+
+        Example:
+            >>> with open('market_data.bin', 'rb') as binary_file:
+            >>>     messages = reader.read_message_from_file(binary_file, cachesize=4096)
+            >>>     for message in messages:
+            >>>         print(message)
+    """
         max_message_size = 52
         file_end_reached = False
 
@@ -126,54 +165,9 @@ class MessageParser(object):
         All message type indicators are single ASCII characters.
         """
         message_type = message[0:1]
-        match message_type:
-            case b"S":
-                return msg.SystemEventMessage(message)
-            case b"R":
-                return msg.StockDirectoryMessage(message)
-            case b"H":
-                return msg.StockTradingActionMessage(message)
-            case b"Y":
-                return msg.RegSHOMessage(message)
-            case b"L":
-                return msg.MarketParticipantPositionMessage(message)
-            case b"V":
-                return msg.MWCBDeclineLeveMessage(message)
-            case b"W":
-                return msg.MWCBStatusMessage(message)
-            case b"K":
-                return msg.IPOQuotingPeriodUpdateMessage(message)
-            case b"J":
-                return msg.LULDAuctionCollarMessage(message)
-            case b"h":
-                return msg.OperationalHaltMessage(message)
-            case b"A":
-                return msg.AddOrderNoMPIAttributionMessage(message)
-            case b"F":
-                return msg.AddOrderMPIDAttribution(message)
-            case b"E":
-                return msg.OrderExecutedMessage(message)
-            case b"C":
-                return msg.OrderExecutedWithPriceMessage(message)
-            case b"X":
-                return msg.OrderCancelMessage(message)
-            case b"D":
-                return msg.OrderDeleteMessage(message)
-            case b"U":
-                return msg.OrderReplaceMessage(message)
-            case b"P":
-                return msg.NonCrossTradeMessage(message)
-            case b"Q":
-                return msg.CrossTradeMessage(message)
-            case b"B":
-                return msg.BrokenTradeMessage(message)
-            case b"I":
-                return msg.NOIIMessage(message)
-            case b"N":
-                return msg.RetailPriceImprovementIndicator(message)
-            case b"O":
-                return msg.DLCRMessage(message)
-            case _:
-                raise ValueError(
-                    f"Unknown message type: {message_type.decode(encoding='ascii')}"
-                )
+        try:
+            return msgs[message_type](message)
+        except Exception:
+            raise ValueError(
+                f"Unknown message type: {message_type.decode(encoding='ascii')}"
+            )
