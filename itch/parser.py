@@ -1,5 +1,5 @@
 from queue import Queue
-from typing import BinaryIO, List
+from typing import BinaryIO, List, Type
 
 from itch.messages import MESSAGES, MarketMessage
 from itch.messages import messages as msgs
@@ -157,7 +157,7 @@ class MessageParser(object):
 
         return messages
 
-    def get_message_type(self, message: bytes):
+    def get_message_type(self, message: bytes) -> Type[MarketMessage]:
         """
         Take an entire bytearray and return the appropriate ITCH message
         instance based on the message type indicator (first byte of the message).
