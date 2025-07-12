@@ -16,6 +16,8 @@
 *   [Usage](#usage)
     *   [Parsing from a Binary File](#parsing-from-a-binary-file)
     *   [Parsing from Raw Bytes](#parsing-from-raw-bytes)
+    *   [Creating Messages Programmatically](#creating-messages-programmatically)
+    *   [Example with Real-World Sample Data](#example-with-real-world-sample-data)
 *   [Interpreting Market Data (Conceptual Overview)](#interpreting-market-data-conceptual-overview)
 *   [Supported Message Types](#supported-message-types)
 *   [Data Representation](#data-representation)
@@ -174,6 +176,78 @@ while not message_queue.empty():
     print(f"  Decoded: {decoded_msg}")
 
 ```
+
+### Creating Messages Programmatically
+
+In addition to parsing, `itch` provides a simple way to create ITCH message objects from scratch. This is particularly useful for:
+- **Testing:** Generating specific message sequences to test your own downstream applications.
+- **Simulation:** Building custom market simulators that produce ITCH-compliant data streams.
+- **Data Generation:** Creating custom datasets for analysis or backtesting.
+
+The `create_message` function is the primary tool for this purpose. It takes a `message_type` and keyword arguments corresponding to the desired message attributes.
+
+Here's a basic example of how to create a `SystemEventMessage` to signal the "Start of Messages":
+
+```python
+from itch.messages import create_message, SystemEventMessage
+
+# Define the attributes for the message
+event_attributes = {
+    "stock_locate": 1,
+    "tracking_number": 2,
+    "timestamp": 1651500000 * 1_000_000_000,
+    "event_code": b"O"
+}
+
+# Create the message object
+system_event_message = create_message(b"S", **event_attributes)
+
+# You can now work with this object just like one from the parser
+print(isinstance(system_event_message, SystemEventMessage))
+# Expected output: True
+
+print(system_event_message)
+# Expected output: SystemEventMessage(description='System Event Message', event_code='O', message_format='!HHHIc', message_pack_format='!cHHHIc', message_size=12, message_type='S', price_precision=4, stock_locate=1, timestamp=86311638581248, tracking_number=2)
+```
+
+### Example with Real-World Sample Data
+
+You can also use the sample data provided in `tests/data.py` to create messages, simulating a more realistic scenario.
+
+```python
+from itch.messages import create_message, AddOrderNoMPIAttributionMessage
+from tests.data import TEST_DATA
+
+# Get the sample data for an "Add Order" message (type 'A')
+add_order_data = TEST_DATA[b"A"]
+
+# Create the message
+add_order_message = create_message(b"A", **add_order_data)
+
+# Verify the type
+print(isinstance(add_order_message, AddOrderNoMPIAttributionMessage))
+# Expected output: True
+
+# Access its attributes
+print(f"Stock: {add_order_message.stock.decode().strip()}")
+# Expected output: Stock: AAPL
+
+print(f"Price: {add_order_message.decode_price('price')}")
+# Expected output: Price: 150.1234
+
+# Test all message types in the sample data
+for message_type, sample_data in TEST_DATA.items():
+    print(f"Creating message of type {message_type}")
+    message = create_message(message_type, **sample_data)
+    print(f"Created message: {message}")
+    print(f"Packed message: {message.pack()}")
+    print(f"Message size: {message.message_size}")
+    print(f"Message Attributes: {message.get_attributes()}")
+    assert len(message.pack()) ==  message.message_size
+    print()
+```
+
+By leveraging `create_message`, you can build robust test suites for your trading algorithms, compliance checks, or data analysis pipelines without needing a live data feed.
 
 ## Interpreting Market Data (Conceptual Overview)
 
