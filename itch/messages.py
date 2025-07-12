@@ -35,6 +35,13 @@ class MarketMessage(object):
     def __repr__(self):
         return repr(self.decode())
 
+    def pack(self) -> bytes:
+        """
+        Packs the message into bytes using the defined message_pack_format.
+        This method should be overridden by subclasses to include specific fields.
+        """
+        pass
+
     def set_timestamp(self, ts1: int, ts2: int):
         """
         Reconstructs a 6-byte timestamp (48 bits) from two 32-bit unsigned integers.
@@ -1598,3 +1605,51 @@ messages: Dict[bytes, Type[MarketMessage]] = {
     b"N": RetailPriceImprovementIndicator,
     b"O": DLCRMessage,
 }
+
+
+def create_message(message_type: bytes, **kwargs) -> Type[MarketMessage]:
+    """
+    Creates a new message of a given type with specified attributes.
+
+    This function simplifies the process of message creation by handling
+    the instantiation and attribute setting for any valid message type.
+    It's particularly useful for simulating trading environments or
+    generating test data without manually packing and unpacking bytes.
+
+    Args:
+        message_type (bytes):
+            A single-byte identifier for the message type (e.g., b'A'
+            for AddOrderNoMPIAttributionMessage).
+        **kwargs:
+            Keyword arguments representing the attributes of the message.
+            These must match the attributes expected by the message class
+            (e.g., `stock_locate`, `timestamp`, `price`).
+
+    Returns:
+        MarketMessage:
+            An instance of the corresponding message class, populated with
+            the provided attributes.
+
+    Raises:
+        ValueError:
+            If the `message_type` is not found in the registered messages.
+    """
+    message_class = messages.get(message_type)
+    if not message_class:
+        raise ValueError(f"Unknown message type: {message_type.decode()}")
+
+    # Create a new instance without calling __init__
+    # __init__ is for unpacking, not creating
+    instance = message_class.__new__(message_class)
+
+    # Set attributes from kwargs
+    for key, value in kwargs.items():
+        if key == 'timestamp':
+            # Timestamps are 48-bit, so we need to mask the original value
+            value &= ((1 << 48) - 1)
+        setattr(instance, key, value)
+
+    # Set the message_type attribute on the instance, as it's used by pack()
+    instance.message_type = message_type
+
+    return instance
