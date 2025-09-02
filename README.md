@@ -23,7 +23,7 @@
 *   [Data Representation](#data-representation)
     *   [Common Attributes of `MarketMessage`](#common-attributes-of-marketmessage)
     *   [Common Methods of `MarketMessage`](#common-methods-of-marketmessage)
-    *   [Serializing Messages with `pack()`](#serializing-messages-with-pack)
+    *   [Serializing Messages with `to_bytes()`](#serializing-messages-with-to_bytes)
     *   [Data Types in Parsed Messages](#data-types-in-parsed-messages)
 *   [Error Handling](#error-handling)
     *   [Handling Strategies](#handling-strategies)
@@ -134,8 +134,8 @@ try:
 
 except FileNotFoundError:
     print(f"Error: File not found at {itch_file_path}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+except ValueError as e:
+    print(f"An error occurred during parsing: {e}")
 
 ```
 
@@ -240,10 +240,10 @@ for message_type, sample_data in TEST_DATA.items():
     print(f"Creating message of type {message_type}")
     message = create_message(message_type, **sample_data)
     print(f"Created message: {message}")
-    print(f"Packed message: {message.pack()}")
+    print(f"Packed message: {message.to_bytes()}")
     print(f"Message size: {message.message_size}")
     print(f"Message Attributes: {message.get_attributes()}")
-    assert len(message.pack()) ==  message.message_size
+    assert len(message.to_bytes()) ==  message.message_size
     print()
 ```
 
@@ -352,14 +352,14 @@ The `MarketMessage` base class, and therefore all specific message classes, prov
     *   Returns a dictionary of all attributes (fields) of the message instance, along with their current values.
     *   This can be useful for generic inspection or logging of message contents without needing to know the specific type of the message beforehand.
 
-### Serializing Messages with `pack()`
+### Serializing Messages with `to_bytes()`
 
-Each specific message class (e.g., `SystemEventMessage`, `AddOrderNoMPIAttributionMessage`) also provides a `pack()` method. This method is the inverse of the parsing process.
+Each specific message class (e.g., `SystemEventMessage`, `AddOrderNoMPIAttributionMessage`) also provides a `to_bytes()` method. This method is the inverse of the parsing process.
 
 *   **Purpose:** It serializes the message object, with its current attribute values, back into its raw ITCH 5.0 binary format. The output is a `bytes` object representing the exact byte sequence that would appear in an ITCH data feed for that message.
 *   **Usefulness:**
     *   **Generating Test Data:** Create custom ITCH messages for testing your own ITCH processing applications.
-    *   **Modifying Messages:** Parse an existing message, modify some of its attributes, and then `pack()` it back into binary form.
+    *   **Modifying Messages:** Parse an existing message, modify some of its attributes, and then `to_bytes()` it back into binary form.
     *   **Creating Custom ITCH Feeds:** While more involved, you could use this to construct sequences of ITCH messages for specialized scenarios.
 
 **Example:**
@@ -379,21 +379,21 @@ import time
 #     for packing requires setting attributes manually if not using raw bytes for construction)
 
 event_msg = SystemEventMessage.__new__(SystemEventMessage) # Create instance without calling __init__
-event_msg.message_type = b'S' # Must be set for pack() to know its type
+event_msg.message_type = b'S' # Must be set for to_bytes() to know its type
 event_msg.stock_locate = 0 # Placeholder or actual value
 event_msg.tracking_number = 0 # Placeholder or actual value
 event_msg.event_code = b'O' # Example: Start of Messages
 
 # 2. Set the timestamp.
 #    The `timestamp` attribute (nanoseconds since midnight) must be set.
-#    The `pack()` method will internally use `split_timestamp()` to get the parts.
+#    The `to_bytes()` method will internally use `split_timestamp()` to get the parts.
 current_nanoseconds = int(time.time() * 1e9) % (24 * 60 * 60 * int(1e9))
 event_msg.timestamp = current_nanoseconds # Directly set the nanosecond timestamp
 
 # 3. Pack the message into binary format.
-#    The pack() method prepends the message type and then packs stock_locate,
+#    The to_bytes() method prepends the message type and then packs stock_locate,
 #    tracking_number, the split timestamp, and then the message-specific fields.
-packed_bytes = event_msg.pack()
+packed_bytes = event_msg.to_bytes()
 
 # 4. The result is a bytes object
 print(f"Packed {len(packed_bytes)} bytes: {packed_bytes.hex().upper()}")
