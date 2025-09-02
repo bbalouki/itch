@@ -12,7 +12,7 @@ def test_create_message_and_pack(message_type, sample_data):
     created_message = create_message(message_type, **sample_data)
 
     # Pack the created message
-    packed_message = created_message.pack()
+    packed_message = created_message.to_bytes()
 
     # Unpack the message using the original class constructor
     message_class = messages[message_type]

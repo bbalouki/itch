@@ -76,7 +76,7 @@ def pack_message_data(
 
     # Now call pack - instance should have all attributes defined in 'data'
     try:
-        packed_message = instance.pack()
+        packed_message = instance.to_bytes()
     except struct.error as e:
         print(f"Struct error during pack for {msg_class.__name__}: {e}")
         raise
@@ -183,8 +183,8 @@ def test_market_message_decode_price():
         msg.decode_price("stock")
 
     # Test trying to decode a method
-    with pytest.raises(ValueError, match="Please check the price attribute for pack"):
-        msg.decode_price("pack")
+    with pytest.raises(ValueError, match="Please check the price attribute for to_bytes"):
+        msg.decode_price("to_bytes")
 
 
 # Helper Function for Verifying Unpacked Attributes
@@ -385,7 +385,7 @@ def test_pack_unpack_decode_consistency(message_params):
     _verify_unpacked_attributes(instance, message_class, sample_data)
 
     # Step 3: Pack the initialized object and compare
-    repacked_message = instance.pack()
+    repacked_message = instance.to_bytes()
     assert repacked_message == expected_packed_message, (
         f"Repacked message does not match original for {message_class.__name__}"
     )
@@ -427,7 +427,7 @@ def test_get_attributes(message_params):
         assert "level1_price" in non_callable_attrs
 
     # Check some expected callable attributes
-    assert "pack" in callable_attrs
+    assert "to_bytes" in callable_attrs
     assert "decode" in callable_attrs
     assert "set_timestamp" in callable_attrs
     assert "split_timestamp" in callable_attrs

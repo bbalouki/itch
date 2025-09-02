@@ -13,13 +13,21 @@ class MarketMessage(object):
 
     All Message have the following attributes:
     - message_type: A single letter that identify the message
+    - timestamp: Time at which the message was generated (Nanoseconds past midnight)
+    - stock_locate: Locate code identifying the security
+    - tracking_number: Nasdaq internal tracking number
+
+    The following attributes are not part of the message, but are used to describe the message:
     - description: Describe the message
     - message_format: string format using to unpack the message
     - message_pack_format: string format using to pack the message
     - message_size: The size in bytes of the message
-    - timestamp: Time at which the message was generated (Nanoseconds past midnight)
-    - stock_locate: Locate code identifying the security
-    - tracking_number: Nasdaq internal tracking number
+
+    # NOTE:
+    Prices are integers fields supplied with an associated precision.  When converted to a decimal format, prices are in 
+    fixed point format, where the precision defines the number of decimal places. For example, a field flagged as Price 
+    (4) has an implied 4 decimal places.  The maximum value of price (4) in TotalView ITCH is 200,000.0000 (decimal, 
+    77359400 hex). ``price_precision`` is 4 for all messages except MWCBDeclineLeveMessage where ``price_precision`` is 8.
     """
 
     message_type: bytes
@@ -32,13 +40,24 @@ class MarketMessage(object):
     tracking_number: int
     price_precision: int = 4
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return repr(self.decode())
 
-    def pack(self) -> bytes:
+    def __bytes__(self) -> bytes:
+        return self.to_bytes()
+
+    def to_bytes(self) -> bytes:
         """
         Packs the message into bytes using the defined message_pack_format.
         This method should be overridden by subclasses to include specific fields.
+
+        Note:
+            All packed messages do not include 
+            - ``description``, 
+            - ``message_format``, 
+            - ``message_pack_format``, 
+            - ``message_size`` 
+            - ``price_precision``
         """
         pass
 
@@ -166,7 +185,7 @@ class SystemEventMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -288,7 +307,7 @@ class StockDirectoryMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -368,7 +387,7 @@ class StockTradingActionMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -429,7 +448,7 @@ class RegSHOMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -491,7 +510,7 @@ class MarketParticipantPositionMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -542,7 +561,7 @@ class MWCBDeclineLeveMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -587,7 +606,7 @@ class MWCBStatusMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -648,7 +667,7 @@ class IPOQuotingPeriodUpdateMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -704,7 +723,7 @@ class LULDAuctionCollarMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -769,7 +788,7 @@ class OperationalHaltMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -832,7 +851,7 @@ class AddOrderNoMPIAttributionMessage(AddOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -886,7 +905,7 @@ class AddOrderMPIDAttribution(AddOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -957,7 +976,7 @@ class OrderExecutedMessage(ModifyOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1025,7 +1044,7 @@ class OrderExecutedWithPriceMessage(ModifyOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1071,7 +1090,7 @@ class OrderCancelMessage(ModifyOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1111,7 +1130,7 @@ class OrderDeleteMessage(ModifyOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1164,7 +1183,7 @@ class OrderReplaceMessage(ModifyOrderMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1238,7 +1257,7 @@ class NonCrossTradeMessage(TradeMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1309,7 +1328,7 @@ class CrossTradeMessage(TradeMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1359,7 +1378,7 @@ class BrokenTradeMessage(TradeMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1441,7 +1460,7 @@ class NOIIMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1496,7 +1515,7 @@ class RetailPriceImprovementIndicator(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1559,7 +1578,7 @@ class DLCRMessage(MarketMessage):
         ) = struct.unpack(self.message_format, message[1:])
         self.set_timestamp(timestamp1, timestamp2)
 
-    def pack(self):
+    def to_bytes(self):
         (timestamp1, timestamp2) = self.split_timestamp()
         message = struct.pack(
             self.message_pack_format,
@@ -1579,8 +1598,8 @@ class DLCRMessage(MarketMessage):
         )
         return message
 
-
-messages: Dict[bytes, Type[MarketMessage]] = {
+messages: Dict[bytes, Type[MarketMessage]]
+messages = {
     b"S": SystemEventMessage,
     b"R": StockDirectoryMessage,
     b"H": StockTradingActionMessage,
@@ -1607,7 +1626,7 @@ messages: Dict[bytes, Type[MarketMessage]] = {
 }
 
 
-def create_message(message_type: bytes, **kwargs) -> Type[MarketMessage]:
+def create_message(message_type: bytes, **kwargs) -> MarketMessage:
     """
     Creates a new message of a given type with specified attributes.
 
