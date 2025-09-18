@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "itchfeed"
+version = "1.0.5"
+authors = [
+    {name = "Bertin Balouki SIMYELI", email = "bertin@bbstrader.com"},
+]
+maintainers = [
+    {name = "Bertin Balouki SIMYELI", email = "bertin@bbstrader.com"},
+]
+description = "Simple parser for ITCH messages"
+readme = "README.md"
+license = "MIT"
+keywords = [
+    "Finance",
+    "Financial",
+    "Quantitative",
+    "Equities",
+    "Totalview-ITCH",
+    "Totalview",
+    "Nasdaq-ITCH",
+    "Nasdaq",
+    "ITCH",
+    "Data",
+    "Feed",
+    "ETFs",
+    "Funds",
+    "Trading",
+    "Investing",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+"Homepage" = "https://github.com/bbalouki/itch"
+"Download" = "https://pypi.org/project/itchfeed/"
+"Source Code" = "https://github.com/bbalouki/itch"
+
+[tool.setuptools]
+packages = ["itch"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }

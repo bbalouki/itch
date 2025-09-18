@@ -6,6 +6,12 @@ __author__ = "Bertin Balouki SIMYELI"
 __copyright__ = "2025 Bertin Balouki SIMYELI"
 __email__ = "bertin@bbstrader.com"
 __license__ = "MIT"
-__version__ = "1.0.4"
+
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("itchfeed")
+except PackageNotFoundError:
+    __version__ = "unknown"
 
 
