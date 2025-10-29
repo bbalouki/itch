@@ -16,7 +16,7 @@ def test_create_message_and_pack(message_type, sample_data):
 
     # Unpack the message using the original class constructor
     message_class = messages[message_type]
-    unpacked_message = message_class(packed_message)
+    unpacked_message = message_class(packed_message) # type: ignore
 
     # Verify that the attributes of the unpacked message match the original data
     for key, expected_value in sample_data.items():
