@@ -46,7 +46,7 @@ class MarketMessage(object):
     def __bytes__(self) -> bytes:
         return self.to_bytes()
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> bytes: # type: ignore
         """
         Packs the message into bytes using the defined message_pack_format.
         This method should be overridden by subclasses to include specific fields.
@@ -109,9 +109,7 @@ class MarketMessage(object):
         ts1 = self.timestamp >> 32
         ts2 = self.timestamp - (ts1 << 32)
         return (ts1, ts2)
-        ts1 = self.timestamp >> 32
-        ts2 = self.timestamp - (ts1 << 32)
-        return (ts1, ts2)
+
 
     def decode_price(self, price_attr: str) -> float:
         precision = getattr(self, "price_precision")
