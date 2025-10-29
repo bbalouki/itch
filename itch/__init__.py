@@ -4,7 +4,7 @@ Nasdaq TotalView-ITCH 5.0 Parser
 
 __author__ = "Bertin Balouki SIMYELI"
 __copyright__ = "2025 Bertin Balouki SIMYELI"
-__email__ = "bertin@bbstrader.com"
+__email__ = "bertin@bbs-trading.com"
 __license__ = "MIT"
 
 from importlib.metadata import version, PackageNotFoundError
