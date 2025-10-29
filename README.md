@@ -75,6 +75,8 @@ After installation (typically via pip), import the necessary modules directly in
 
 ## Usage
 
+Download some sample data [here](https://emi.nasdaq.com/ITCH/Nasdaq%20ITCH/)
+
 ### Parsing from a Binary File
 
 This is useful for processing historical ITCH data stored in files. The `MessageParser` handles buffering efficiently.
@@ -95,9 +97,8 @@ parser = MessageParser() # Parses all messages by default
 
 # Path to your ITCH 5.0 data file
 itch_file_path = 'path/to/your/data'
-# you can find sample data [here](https://emi.nasdaq.com/ITCH/Nasdaq%20ITCH/)
 
-# The `read_message_from_file()` method reads the ITCH data in chunks.
+# The `parse_file()` method reads the ITCH data in chunks.
 # - `cachesize` (optional, default: 65536 bytes): This parameter determines the size of data chunks
 #   read from the file at a time. Adjusting this might impact performance for very large files
 #   or memory usage, but the default is generally suitable.
@@ -108,13 +109,9 @@ itch_file_path = 'path/to/your/data'
 
 try:
     with open(itch_file_path, 'rb') as itch_file:
-        # read_message_from_file returns a list of parsed message objects
-        parsed_messages = parser.read_message_from_file(itch_file) # You can also pass cachesize here, e.g., parser.read_message_from_file(itch_file, cachesize=131072)
-
-        print(f"Parsed {len(parsed_messages)} messages.")
-
+        # parse_file returns an Iterator of parsed message objects
         # Process the messages
-        for message in parsed_messages:
+        for message in parser.parse_file(itch_file):
             # Access attributes directly
             print(f"Type: {message.message_type.decode()}, Timestamp: {message.timestamp}")
 
@@ -156,14 +153,8 @@ parser = MessageParser()
 # Example: \x00\x0bS...\x00\x25R...\x00\x27F...
 raw_binary_data: bytes = b"..." # Your raw ITCH 5.0 data chunk
 
-# read_message_from_bytes returns a queue of parsed message objects
-message_queue: Queue = parser.read_message_from_bytes(raw_binary_data)
-
-print(f"Parsed {message_queue.qsize()} messages from the byte chunk.")
-
-# Process messages from the queue
-while not message_queue.empty():
-    message = message_queue.get()
+# parse_stream returns an Iterator of parsed message objects
+for message in parser.parse_stream(raw_binary_data)
 
     print(f"Type: {message.message_type.decode()}, Timestamp: {message.timestamp}")
 
