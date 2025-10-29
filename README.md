@@ -417,11 +417,12 @@ Common scenarios that can lead to a `ValueError` include:
 
 It's crucial to anticipate these errors in your application:
 
-*   **Use `try-except` Blocks:** Wrap your parsing calls (especially `read_message_from_file` or `read_message_from_bytes`) in `try-except ValueError as e:` blocks.
+*   **Use `try-except` Blocks:** Wrap your parsing calls (especially `parse_file` or `parse_stream`) in `try-except ValueError as e:` blocks.
     ```python
     try:
         # ... parsing operations ...
-        messages = parser.read_message_from_file(itch_file)
+        for message in parser.parse_file(itch_file):
+            ...
     except ValueError as e:
         print(f"An error occurred during parsing: {e}")
         # Log the error, problematic data chunk, or take other actions
