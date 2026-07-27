@@ -226,3 +226,18 @@ class MessageParser(object):
         )
         for message in parser_func(data):
             callback(message)
+
+
+# --- Optional native (C++) backend -------------------------------------------
+# When `itchcpp` is installed (and ITCH_NO_CPP is not set), use its MessageParser,
+# which shares this class's API but parses in C++. The message objects it yields are
+# the native classes that `itch.messages` also exposes under the same names, so
+# isinstance checks and attribute access remain consistent. See `itch._backend`.
+from itch._backend import USING_CPP_BACKEND as _USING_CPP_BACKEND  # noqa: E402
+
+if _USING_CPP_BACKEND:
+    try:
+        from itchcpp.parser import MessageParser  # type: ignore  # noqa: F401,F811,E402
+    except ImportError:
+        # A version mismatch or partial install: keep the pure-Python implementation.
+        pass

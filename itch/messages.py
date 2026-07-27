@@ -1670,3 +1670,49 @@ def create_message(message_type: bytes, **kwargs) -> MarketMessage:
     instance.message_type = message_type
 
     return instance
+
+
+# --- Optional native (C++) backend -------------------------------------------
+# When `itchcpp` is installed (and ITCH_NO_CPP is not set), replace the pure-Python
+# message classes, registry and factory above with the native, API-compatible ones
+# so the whole package shares a single, much faster implementation. See
+# `itch._backend` for details.
+from itch._backend import USING_CPP_BACKEND as _USING_CPP_BACKEND  # noqa: E402
+
+if _USING_CPP_BACKEND:
+    try:
+        from itchcpp.messages import (  # type: ignore  # noqa: F401,F811,E402
+            AddOrderMessage,
+            AddOrderMPIDAttribution,
+            AddOrderNoMPIAttributionMessage,
+            AllMessages,
+            BrokenTradeMessage,
+            CrossTradeMessage,
+            DLCRMessage,
+            IPOQuotingPeriodUpdateMessage,
+            LULDAuctionCollarMessage,
+            MarketMessage,
+            MarketParticipantPositionMessage,
+            ModifyOrderMessage,
+            MWCBDeclineLeveMessage,
+            MWCBStatusMessage,
+            NOIIMessage,
+            NonCrossTradeMessage,
+            OperationalHaltMessage,
+            OrderCancelMessage,
+            OrderDeleteMessage,
+            OrderExecutedMessage,
+            OrderExecutedWithPriceMessage,
+            OrderReplaceMessage,
+            RegSHOMessage,
+            RetailPriceImprovementIndicator,
+            StockDirectoryMessage,
+            StockTradingActionMessage,
+            SystemEventMessage,
+            TradeMessage,
+            create_message,
+            messages,
+        )
+    except ImportError:
+        # A version mismatch or partial install: keep the pure-Python implementation.
+        pass

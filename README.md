@@ -13,6 +13,7 @@
 *   [Overview](#overview)
 *   [Features](#features)
 *   [Installation](#installation)
+    *   [High-performance C++ backend (`itchcpp`)](#high-performance-c-backend-itchcpp)
 *   [Usage](#usage)
     *   [Parsing from a Binary File](#parsing-from-a-binary-file)
     *   [Parsing from Raw Bytes](#parsing-from-raw-bytes)
@@ -37,6 +38,13 @@ A Python library for parsing binary data conforming to the Nasdaq TotalView-ITCH
 
 The Nasdaq TotalView-ITCH 5.0 protocol is a binary protocol used by Nasdaq to disseminate full order book depth, trade information, and system events for equities traded on its execution system. This parser handles the low-level details of reading the binary format, unpacking fields according to the specification, and presenting the data as intuitive Python objects.
 
+> **Prototyping vs. production.** `itchfeed` is pure Python with zero dependencies,
+> which makes it perfect for prototyping, experimentation, research notebooks, and
+> learning the protocol. For production workloads and high-throughput parsing, install
+> the native C++ backend [`itchcpp`](https://pypi.org/project/itchcpp/): it exposes the
+> exact same API but parses at gigabytes per second, and `itchfeed` uses it
+> automatically when it is installed. See [Installation](#installation).
+
 ## Features
 
 *   **Parses ITCH 5.0 Binary Data:** Accurately interprets the binary message structures defined in the official specification.
@@ -51,7 +59,7 @@ The Nasdaq TotalView-ITCH 5.0 protocol is a binary protocol used by Nasdaq to di
     *   Price decoding based on defined precision.
 *   **Timestamp Handling:** Correctly reconstructs the 6-byte (48-bit) nanosecond timestamps.
 *   **Price Handling:** Decodes fixed-point price fields into floating-point numbers based on the standard 4 or 8 decimal place precision.
-*   **Pure Python:** Relies only on the Python standard library. No external dependencies required.
+*   **Pure Python, with an optional C++ speed-up:** Relies only on the Python standard library, with no required dependencies. Install the optional native [`itchcpp`](https://pypi.org/project/itchcpp/) backend for production-grade, gigabytes-per-second parsing through the same API (see [Installation](#installation)).
 
 ## Installation
 
@@ -72,6 +80,28 @@ After installation (typically via pip), import the necessary modules directly in
     from itch.parser import MessageParser
     from itch.messages import ModifyOrderMessage
     ```
+
+### High-performance C++ backend (`itchcpp`)
+
+For production and speed, install the native C++ backend alongside `itchfeed`:
+
+```bash
+pip install itchfeed[cpp]    # pulls in the itchcpp backend
+# or install it directly:
+pip install itchcpp
+```
+
+[`itchcpp`](https://github.com/bbalouki/itchcpp) is a drop-in, much faster backend written in C++ (parsing at gigabytes per second). When it is installed, `itchfeed` **automatically** uses it: `itch.parser.MessageParser` and the `itch.messages` classes transparently become the native implementations, with the same names, attributes, and `decode()` / `decode_price()` / `to_bytes()` behavior. No code changes are required, so you can prototype with pure Python and ship to production simply by installing `itchcpp`.
+
+You can check which implementation is active:
+
+```python
+import itch
+
+print(itch.USING_CPP_BACKEND)  # True when the itchcpp backend is in use
+```
+
+To force the pure-Python implementation even when `itchcpp` is installed, set the environment variable `ITCH_NO_CPP=1` before importing `itch`.
 
 ## Usage
 

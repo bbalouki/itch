@@ -30,6 +30,10 @@ classifiers = [
 ]
 dependencies = []
 
+[project.optional-dependencies]
+# Install the native C++ backend for production-grade speed: `pip install itchfeed[cpp]`.
+cpp = ["itchcpp"]
+
 [project.urls]
 "Homepage" = "https://github.com/bbalouki/itch"
 "Download" = "https://pypi.org/project/itchfeed/"
